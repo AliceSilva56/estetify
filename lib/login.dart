@@ -1,140 +1,155 @@
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class TelaLogin extends StatefulWidget {
+  const TelaLogin({super.key});
+
   @override
-  _TelaLoginState createState() => _TelaLoginState();
+  State<TelaLogin> createState() => _TelaLoginState();
 }
 
-class _TelaLoginState extends State<TelaLogin> with SingleTickerProviderStateMixin {
+class _TelaLoginState extends State<TelaLogin> {
   final _formKey = GlobalKey<FormState>();
-  late AnimationController _controller;
-  late Animation<double> _animacaoCard;
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController senhaController = TextEditingController();
 
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _senhaController = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 800),
-      vsync: this,
-    );
-    _animacaoCard = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
-    _controller.forward();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    _emailController.dispose();
-    _senhaController.dispose();
-    super.dispose();
-  }
-
-  void _enviar() {
+  void _loginComEmail() {
     if (_formKey.currentState!.validate()) {
-      Navigator.pushNamed(context, '/principal');
+      final email = emailController.text;
+      final senha = senhaController.text;
+
+      // Aqui você faz a autenticação com backend ou Firebase
+      print('Login com e-mail: $email e senha: $senha');
+      Navigator.pushReplacementNamed(context, '/principal');
     }
+  }
+
+  Future<void> _loginComGoogle() async {
+    final googleSignIn = GoogleSignIn();
+    final conta = await googleSignIn.signIn();
+
+    if (conta != null) {
+      print('Usuário do Google: ${conta.email}');
+      // Aqui você usaria firebase_auth para autenticar
+      Navigator.pushReplacementNamed(context, '/principal');
+    }
+  }
+
+  void _loginComFacebook() {
+    // Simulação: você pode integrar com `flutter_facebook_auth`
+    print("Login com Facebook");
+    Navigator.pushReplacementNamed(context, '/principal');
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFAF9F6), // fundo branco neve
-      body: Center(
-        child: FadeTransition(
-          opacity: _animacaoCard,
-          child: ScaleTransition(
-            scale: _animacaoCard,
-            child: Card(
-              color: const Color(0xFFEABF9F), // cor rajah
-              elevation: 10,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Form(
-                  key: _formKey,
-                  child: SizedBox(
-                    width: 300,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Text(
-                          "Login",
-                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black),
-                        ),
-                        const SizedBox(height: 20),
-                        TextFormField(
-                          controller: _emailController,
-                          decoration: const InputDecoration(
-                            prefixIcon: Icon(Icons.email),
-                            labelText: "E-mail",
-                            labelStyle: TextStyle(color: Colors.black),
-                          ),
-                          style: const TextStyle(color: Colors.black),
-                          validator: (value) {
-                            if (value == null || value.isEmpty || !value.contains('@')) {
-                              return 'Digite um e-mail válido';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 10),
-                        TextFormField(
-                          controller: _senhaController,
-                          obscureText: true,
-                          decoration: const InputDecoration(
-                            prefixIcon: Icon(Icons.lock),
-                            labelText: "Senha",
-                            labelStyle: TextStyle(color: Colors.black),
-                          ),
-                          style: const TextStyle(color: Colors.black),
-                          validator: (value) {
-                            if (value == null || value.length < 6) {
-                              return 'Senha deve ter pelo menos 6 caracteres';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 20),
-                        ElevatedButton(
-                          onPressed: _enviar,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF7CB9E8), // cor aero
-                            foregroundColor: Colors.black,
-                            minimumSize: const Size(double.infinity, 40),
-                          ),
-                          child: const Text("Enviar"),
-                        ),
-                        const SizedBox(height: 10),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            ElevatedButton(
-                              onPressed: () {
-                                Navigator.pushNamed(context, '/cadastro');
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF7CB9E8),
-                                foregroundColor: Colors.black,
-                              ),
-                              child: const Text("Cadastrar"),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                Navigator.pushNamed(context, '/anonimo');
-                              },
-                              child: const Text("Anônimo", style: TextStyle(color: Colors.black)),
-                            ),
-                          ],
-                        )
-                      ],
+      backgroundColor: const Color(0xFFF5F5F5),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 60),
+          child: Column(
+            children: [
+              Image.asset('lib/assets/logo_estetify.png', height: 155),
+              const SizedBox(height: 12),
+              const Text(
+                'Estetify',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 32),
+
+              Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    TextFormField(
+                      controller: emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      decoration: const InputDecoration(labelText: 'Email'),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Informe o e-mail';
+                        }
+                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w]{2,4}$').hasMatch(value)) {
+                          return 'Email inválido';
+                        }
+                        return null;
+                      },
                     ),
-                  ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: senhaController,
+                      obscureText: true,
+                      decoration: const InputDecoration(labelText: 'Senha'),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Informe a senha';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton(
+                      onPressed: _loginComEmail,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: Colors.black,
+                        side: const BorderSide(color: Colors.black),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                        padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 14),
+                      ),
+                      child: const Text("Login", style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                  ],
                 ),
               ),
-            ),
+
+              const SizedBox(height: 20),
+              const Text("Entrar com"),
+              const SizedBox(height: 10),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    onPressed: _loginComGoogle,
+                    icon: const Icon(Icons.g_mobiledata, size: 40),
+                  ),
+                  const SizedBox(width: 30),
+                  IconButton(
+                    onPressed: _loginComFacebook,
+                    icon: const Icon(Icons.facebook, size: 36),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      // Lógica para recuperação de senha
+                      print("Esqueceu a senha");
+                    },
+                    child: const Text("Esqueceu a senha?", style: TextStyle(color: Colors.redAccent)),
+                  ),
+                  const SizedBox(width: 12),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pushReplacementNamed(context, '/intro');
+                    },
+                    child: const Text("Criar conta", style: TextStyle(color: Color.fromARGB(255, 0, 0, 0))),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 16),
+              const Text(
+                "Política de Privacidade",
+                style: TextStyle(color: Colors.deepOrange, fontWeight: FontWeight.bold),
+              ),
+            ],
           ),
         ),
       ),
