@@ -53,15 +53,7 @@ class _TelaApresentacaoState extends State<TelaApresentacao>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
-                "Estetify",
-                style: TextStyle(
-                  fontSize: 40,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.purple, // cor roxa
-                  letterSpacing: 2,
-                ),
-              ),
+              Image.asset('lib/assets/logo_estetify.png', height: 155),
               const SizedBox(height: 20),
 
               // Frase com gradiente animado horizontalmente
@@ -81,7 +73,8 @@ class _TelaApresentacaoState extends State<TelaApresentacao>
                     },
                     blendMode: BlendMode.srcIn,
                     child: const Text(
-                      "Estetify é mais que um app - é o lembrete diário de que cuidar de si mesmo é uma prioridade",
+                      "Estetify: realce sua beleza, transforme sua rotina, celebre o melhor de você.",
+                      //"Estetify é mais que um app - é o lembrete diário de que cuidar de si mesmo é uma prioridade",
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 16,
