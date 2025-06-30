@@ -137,7 +137,7 @@ class _TelaLoginState extends State<TelaLogin> {
                   const SizedBox(width: 12),
                   TextButton(
                     onPressed: () {
-                      Navigator.pushReplacementNamed(context, '/intro');
+                      Navigator.pushReplacementNamed(context, '/escolha_cadastro');
                     },
                     child: const Text("Criar conta", style: TextStyle(color: Color.fromARGB(255, 0, 0, 0))),
                   ),

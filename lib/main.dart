@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'apresentacao.dart';
 import 'login.dart';
 import 'anonimo.dart';
-import 'principal.dart';
-import 'inicio.dart';
+import 'home.dart';
+import 'escolha_cadastro.dart';
 import 'cadastro_consumidor.dart';
 import 'cadastro_empresario.dart';
 
@@ -26,12 +26,12 @@ class EstetifyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => const TelaApresentacao(),
-        '/inicio': (context) => const EscolhaTipoUsuarioPage(),
+        '/escolha_cadastro': (context) => const EscolhaTipoUsuarioPage(),
         '/cadastro_consumidor': (context) => const CadastroConsumidorPage(),
         '/cadastro_empresario': (context) => const CadastroEmpresarioPage(),
         '/login': (context) => TelaLogin(),
         '/anonimo': (context) => TelaAnonimo(),
-        '/principal': (context) => TelaPrincipal(),
+        '/principal': (context) => TelaHome(),
       },
     );
   }

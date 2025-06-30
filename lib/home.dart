@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class TelaPrincipal extends StatefulWidget {
-  const TelaPrincipal({super.key});
+class TelaHome extends StatefulWidget {
+  const TelaHome({super.key});
 
   @override
-  State<TelaPrincipal> createState() => _TelaPrincipalState();
+  State<TelaHome> createState() => _TelaHomeState();
 }
 
-class _TelaPrincipalState extends State<TelaPrincipal> {
+class _TelaHomeState extends State<TelaHome> {
   int _selectedIndex = 0;
   final TextEditingController _searchController = TextEditingController();
 
