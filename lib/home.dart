@@ -1,5 +1,6 @@
 import 'package:estetify/descricao.dart';
 import 'package:flutter/material.dart';
+import 'package:estetify/carrinho_agenda.dart';
 
 class TelaHome extends StatefulWidget {
   const TelaHome({super.key});
@@ -13,9 +14,17 @@ class _TelaHomeState extends State<TelaHome> {
   final TextEditingController _searchController = TextEditingController();
 
   void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+    if (index == 1) {
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const CarrinhoAgendaScreen()),
+      );
+    } else {
+      setState(() {
+        _selectedIndex = index;
+      });
+    }
   }
 
   void _showFilterModal() {
