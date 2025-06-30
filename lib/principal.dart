@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:estetify/carrinho_agenda.dart';
 
 class TelaPrincipal extends StatefulWidget {
   const TelaPrincipal({super.key});
@@ -12,9 +13,17 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
   final TextEditingController _searchController = TextEditingController();
 
   void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+    if (index == 1) {
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const CarrinhoAgendaScreen()),
+      );
+    } else {
+      setState(() {
+        _selectedIndex = index;
+      });
+    }
   }
 
   void _showFilterModal() {
