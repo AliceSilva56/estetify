@@ -199,24 +199,25 @@ class _TelaHomeState extends State<TelaHome> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: azul,
+        backgroundColor: laranja,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.map),
           tooltip: 'Ver no mapa',
+          color: Colors.white,
           onPressed: () {},
         ),
         title: Container(
           height: 40,
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(16),
           ),
           child: TextField(
             controller: _searchController,
             decoration: const InputDecoration(
               hintText: 'encontre seu desejo',
-              prefixIcon: Icon(Icons.search, color: Colors.grey),
+              prefixIcon: Icon(Icons.search, color: azul),
               border: InputBorder.none,
               contentPadding: EdgeInsets.symmetric(vertical: 10),
             ),
@@ -226,6 +227,7 @@ class _TelaHomeState extends State<TelaHome> {
           IconButton(
             icon: const Icon(Icons.filter_alt_rounded),
             tooltip: 'Filtrar',
+            color: Colors.white,
             onPressed: _showFilterModal,
           ),
         ],

@@ -12,9 +12,7 @@ class TelaDescricao extends StatefulWidget {
 
 class _TelaDescricaoState extends State<TelaDescricao> {
   int quantidade = 1;
-  DateTime? dataSelecionada;
-  TimeOfDay? horarioSelecionado;
-  bool atendimentoPersonalizado = false;
+  bool descricaoExpandida = false;
 
   void _abrirConfiguracoesPerfil() {
     showModalBottomSheet(
@@ -45,28 +43,6 @@ class _TelaDescricaoState extends State<TelaDescricao> {
     );
   }
 
-  Future<void> _selecionarData() async {
-    final data = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
-    );
-    if (data != null) {
-      setState(() => dataSelecionada = data);
-    }
-  }
-
-  Future<void> _selecionarHorario() async {
-    final horario = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.now(),
-    );
-    if (horario != null) {
-      setState(() => horarioSelecionado = horario);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final dados = widget.dados;
@@ -81,16 +57,20 @@ class _TelaDescricaoState extends State<TelaDescricao> {
     final relacionados = dados['relacionados'] as List<Map<String, dynamic>>? ?? [];
     final feedbacks = dados['feedbacks'] as List<Map<String, dynamic>>? ?? [];
 
+    // Para truncar descrição
+    final descricaoMaxLines = descricaoExpandida ? null : 4;
+    final descricaoOverflow = descricaoExpandida ? TextOverflow.visible : TextOverflow.ellipsis;
+
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFF2c3e50),
+        backgroundColor: const Color(0xFFFF7043), // Laranja
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings),
+            icon: const Icon(Icons.settings, color: Colors.white),
             onPressed: _abrirConfiguracoesPerfil,
           ),
         ],
@@ -106,12 +86,8 @@ class _TelaDescricaoState extends State<TelaDescricao> {
             runSpacing: 8,
             children: categorias.map((cat) => Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-              decoration: BoxDecoration(
-                color: const Color(0xFFa8e7cf),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFF2c3e50)),
-              ),
-              child: Text(cat, style: const TextStyle(color: Color(0xFF2c3e50), fontWeight: FontWeight.bold)),
+                
+              child: Text(cat, style: const TextStyle(color: Color(0xFF2c3e50), fontWeight: FontWeight.bold, fontSize: 10)),
             )).toList(),
           ),
           const SizedBox(height: 16),
@@ -129,37 +105,7 @@ class _TelaDescricaoState extends State<TelaDescricao> {
           // Preço entrega ou agendamento
           isProduto
               ? Text('Entrega: $precoEntrega', style: const TextStyle(fontSize: 16, color: Colors.black54))
-              : Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        ElevatedButton.icon(
-                          onPressed: _selecionarData,
-                          icon: const Icon(Icons.calendar_today),
-                          label: Text(dataSelecionada == null ? 'Escolher data' : '${dataSelecionada!.day}/${dataSelecionada!.month}/${dataSelecionada!.year}'),
-                          style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFa8e7cf), foregroundColor: Colors.black),
-                        ),
-                        const SizedBox(width: 8),
-                        ElevatedButton.icon(
-                          onPressed: _selecionarHorario,
-                          icon: const Icon(Icons.access_time),
-                          label: Text(horarioSelecionado == null ? 'Escolher horário' : horarioSelecionado!.format(context)),
-                          style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFa8e7cf), foregroundColor: Colors.black),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Checkbox(
-                          value: atendimentoPersonalizado,
-                          onChanged: (v) => setState(() => atendimentoPersonalizado = v ?? false),
-                        ),
-                        const Text('Atendimento personalizado'),
-                      ],
-                    ),
-                  ],
-                ),
+              : const SizedBox.shrink(), // Remove seleção de data/horário e checkbox
           const SizedBox(height: 8),
           // Empresa
           Text('Empresa: $empresa', style: const TextStyle(fontSize: 16, color: Colors.black87)),
@@ -187,13 +133,14 @@ class _TelaDescricaoState extends State<TelaDescricao> {
               child: Row(
                 children: [
                   Expanded(
-                    child: ElevatedButton.icon(
-                      icon: const Icon(Icons.shopping_cart_outlined),
-                      label: const Text('Adicionar ao carrinho'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF2c3e50),
-                        foregroundColor: Colors.white,
+                    child: OutlinedButton.icon(
+                      icon: const Icon(Icons.shopping_cart_outlined, color: Color(0xFFFF7043)),
+                      label: const Text('Adicionar ao carrinho', style: TextStyle(color: Color(0xFFFF7043))),
+                      style: OutlinedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        side: const BorderSide(color: Color(0xFFFF7043), width: 2),
                         minimumSize: const Size(0, 48),
+                        foregroundColor: Color(0xFFFF7043),
                       ),
                       onPressed: () {
                         // Integração futura com backend/carrinho
@@ -206,7 +153,6 @@ class _TelaDescricaoState extends State<TelaDescricao> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: ElevatedButton(
-                      child: const Text('Comprar agora'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFFF7043),
                         foregroundColor: Colors.white,
@@ -227,6 +173,7 @@ class _TelaDescricaoState extends State<TelaDescricao> {
                           ),
                         );
                       },
+                      child: const Text('Comprar agora'),
                     ),
                   ),
                 ],
@@ -238,13 +185,14 @@ class _TelaDescricaoState extends State<TelaDescricao> {
               child: Row(
                 children: [
                   Expanded(
-                    child: ElevatedButton.icon(
-                      icon: const Icon(Icons.shopping_cart_outlined),
-                      label: const Text('Adicionar ao carrinho'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF2c3e50),
-                        foregroundColor: Colors.white,
+                    child: OutlinedButton.icon(
+                      icon: const Icon(Icons.shopping_cart_outlined, color: Color(0xFFFF7043)),
+                      label: const Text('Adicionar ao carrinho', style: TextStyle(color: Color(0xFFFF7043))),
+                      style: OutlinedButton.styleFrom(
+                        backgroundColor: const Color.fromARGB(0, 255, 255, 255),
+                        side: const BorderSide(color: Color(0xFFFF7043), width: 2),
                         minimumSize: const Size(0, 48),
+                        foregroundColor: Color(0xFFFF7043),
                       ),
                       onPressed: () {
                         // Integração futura com backend/carrinho
@@ -257,7 +205,6 @@ class _TelaDescricaoState extends State<TelaDescricao> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: ElevatedButton(
-                      child: const Text('Agendar agora'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFFF7043),
                         foregroundColor: Colors.white,
@@ -278,6 +225,7 @@ class _TelaDescricaoState extends State<TelaDescricao> {
                           ),
                         );
                       },
+                      child: const Text('Agendar agora'),
                     ),
                   ),
                 ],
@@ -287,7 +235,33 @@ class _TelaDescricaoState extends State<TelaDescricao> {
           // Descrição
           const Text('Descrição', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
           const SizedBox(height: 4),
-          Text(descricao, style: const TextStyle(fontSize: 15)),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final span = TextSpan(text: descricao, style: const TextStyle(fontSize: 17));
+              final tp = TextPainter(
+                text: span,
+                maxLines: 4,
+                textDirection: TextDirection.ltr,
+              )..layout(maxWidth: constraints.maxWidth);
+              final isOverflow = tp.didExceedMaxLines;
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    descricao,
+                    style: const TextStyle(fontSize: 17),
+                    maxLines: descricaoMaxLines,
+                    overflow: descricaoOverflow,
+                  ),
+                  if (isOverflow || descricaoExpandida)
+                    TextButton(
+                      onPressed: () => setState(() => descricaoExpandida = !descricaoExpandida),
+                      child: Text(descricaoExpandida ? 'Ver menos' : 'Ver mais', style: const TextStyle(color: Color(0xFFFF7043))),
+                    ),
+                ],
+              );
+            },
+          ),
           const SizedBox(height: 16),
           // Produtos relacionados
           if (relacionados.isNotEmpty) ...[
@@ -332,6 +306,12 @@ class _TelaDescricaoState extends State<TelaDescricao> {
             const Text('Nenhum feedback ainda.', style: TextStyle(color: Colors.grey)),
           ...feedbacks.map((fb) => Card(
                 margin: const EdgeInsets.symmetric(vertical: 6),
+                color: Colors.transparent,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: const BorderSide(color: Color(0xFFFF7043), width: 1.5),
+                ),
+                elevation: 0,
                 child: ListTile(
                   leading: CircleAvatar(backgroundImage: NetworkImage(fb['foto'] ?? '')),
                   title: Text(fb['usuario'] ?? ''),

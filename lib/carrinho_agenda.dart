@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'principal.dart';
+import 'home.dart';
 
 class CarrinhoAgendaScreen extends StatefulWidget {
   const CarrinhoAgendaScreen({super.key});
@@ -15,7 +15,7 @@ class _CarrinhoAgendaScreenState extends State<CarrinhoAgendaScreen> {
     if (index == 0) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const TelaPrincipal()),
+        MaterialPageRoute(builder: (context) => const TelaHome()),
       );
     } else {
       setState(() {
@@ -104,7 +104,6 @@ class _CarrinhoAgendaScreenState extends State<CarrinhoAgendaScreen> {
           ],
         ),
       ),
-
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         selectedItemColor: laranja,
@@ -171,7 +170,7 @@ class _CarrinhoAgendaScreenState extends State<CarrinhoAgendaScreen> {
                           ),
                         ),
                       if (date != null)
-                        Text(date!, style: const TextStyle(fontSize: 12)),
+                        Text(date, style: const TextStyle(fontSize: 12)),
                     ],
                   ),
                 Align(
