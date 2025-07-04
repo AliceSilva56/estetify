@@ -43,9 +43,10 @@ class _CadastroConsumidorPageState extends State<CadastroConsumidorPage> {
     const laranja = Color(0xFFFF7043);
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: azul,
+        backgroundColor: laranja,
+        iconTheme: const IconThemeData(color: Colors.white),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text('Cadastro Consumidor', style: TextStyle(color: Colors.white)),
