@@ -39,7 +39,6 @@ class _CadastroConsumidorPageState extends State<CadastroConsumidorPage> {
 
   @override
   Widget build(BuildContext context) {
-    const azul = Color(0xFF2c3e50);
     const laranja = Color(0xFFFF7043);
     return Scaffold(
       appBar: AppBar(
