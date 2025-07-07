@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:flutter/services.dart';
 
 class CadastroConsumidorPage extends StatefulWidget {
   const CadastroConsumidorPage({super.key});
@@ -10,7 +14,8 @@ class CadastroConsumidorPage extends StatefulWidget {
 class _CadastroConsumidorPageState extends State<CadastroConsumidorPage> {
   int _etapa = 0;
   final _formKey = GlobalKey<FormState>();
-  final _nomeController = TextEditingController();
+  final _primeiroNomeController = TextEditingController();
+  final _segundoNomeController = TextEditingController();
   final _emailController = TextEditingController();
   final _senhaController = TextEditingController();
   final _confirmaSenhaController = TextEditingController();
@@ -22,18 +27,10 @@ class _CadastroConsumidorPageState extends State<CadastroConsumidorPage> {
   bool _confirmaSenhaVisivel = false;
   String? _erro;
   String? _genero;
+  String? _sexualidade;
+  
   String? _fotoPerfilUrl;
-
-  // Preferências
-  final List<String> _preferenciasServicos = [];
-  final List<String> _preferenciasProdutos = [];
-  final List<String> _categoriasServicos = [
-    'Cabelo', 'Unhas', 'Depilação', 'Maquiagem', 'Massagem', 'Sobrancelha', 'Barba', 'Estética facial', 'Estética corporal'
-  ];
-  final List<String> _categoriasProdutos = [
-    'Shampoo', 'Condicionador', 'Esmalte', 'Cremes', 'Óleos', 'Maquiagem', 'Acessórios', 'Pomada', 'Perfume'
-  ];
-
+  bool _aceitaNotificacoes = false;
   void _cadastrar() {
     setState(() {
       _erro = null;
@@ -45,6 +42,31 @@ class _CadastroConsumidorPageState extends State<CadastroConsumidorPage> {
         });
         return;
       }
+      final firstName = _primeiroNomeController.text.trim();
+      final lastName = _segundoNomeController.text.trim();
+      final email = _emailController.text.trim();
+      final password = _senhaController.text;
+      final cleanedVat = _cpfController.text.replaceAll(RegExp(r'[^0-9]'), '');
+      final birthDate = _dataNascimentoController.text;
+      final phone = _telefoneController.text.trim();
+      final genero = _genero;
+      final sexualidade = _sexualidade;
+      final fotoPerfil = _fotoPerfilUrl;
+      final payload = {
+        "username": firstName,
+        "vat": cleanedVat,
+        "email": email,
+        "password": password,
+        "first_name": firstName,
+        "last_name": lastName,
+        "phone": phone,
+        "birth_date": birthDate,
+        "gender": genero,
+        "sexuality": sexualidade,
+        "profile_picture": fotoPerfil,
+        "user_type": "customer",
+        // Preferências podem ser adicionadas aqui se necessário
+      };
       // TODO: Implementar cadastro real
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Cadastro realizado com sucesso!')),
@@ -148,12 +170,21 @@ class _CadastroConsumidorPageState extends State<CadastroConsumidorPage> {
                         children: [
                           const SizedBox(height: 16),
                           TextFormField(
-                            controller: _nomeController,
+                            controller: _primeiroNomeController,
                             decoration: const InputDecoration(
-                              labelText: 'Nome completo',
+                              labelText: 'Primeiro nome',
                               prefixIcon: Icon(Icons.person),
                             ),
-                            validator: (v) => v == null || v.isEmpty ? 'Informe seu nome completo' : null,
+                            validator: (v) => v == null || v.isEmpty ? 'Informe seu primeiro nome' : null,
+                          ),
+                          const SizedBox(height: 16),
+                          TextFormField(
+                            controller: _segundoNomeController,
+                            decoration: const InputDecoration(
+                              labelText: 'Segundo nome',
+                              prefixIcon: Icon(Icons.person_outline),
+                            ),
+                            validator: (v) => v == null || v.isEmpty ? 'Informe seu segundo nome' : null,
                           ),
                           const SizedBox(height: 16),
                           TextFormField(
@@ -250,7 +281,8 @@ class _CadastroConsumidorPageState extends State<CadastroConsumidorPage> {
                           ),
                         ],
                       );
-                    } else if (_etapa == 1) {
+                    } else {
+                      // Etapa 1: Dados pessoais + política/privacidade + notificações + finalizar
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
@@ -305,10 +337,10 @@ class _CadastroConsumidorPageState extends State<CadastroConsumidorPage> {
                           DropdownButtonFormField<String>(
                             value: _genero,
                             items: const [
-                              DropdownMenuItem(value: 'Cis', child: Text('Cis')),
-                              DropdownMenuItem(value: 'Trans', child: Text('Trans')),
-                              DropdownMenuItem(value: 'Não-binário', child: Text('Não-binário')),
-                              DropdownMenuItem(value: 'Outro', child: Text('Outro')),
+                              DropdownMenuItem(value: 'CISGENDER', child: Text('Cisgênero')),
+                              DropdownMenuItem(value: 'TRANSGENDER', child: Text('Transgênero')),
+                              DropdownMenuItem(value: 'DEFAULT', child: Text('Prefiro não informar')),
+                              DropdownMenuItem(value: 'OTHERS', child: Text('Outro')),
                             ],
                             onChanged: (v) => setState(() => _genero = v),
                             decoration: const InputDecoration(
@@ -317,36 +349,36 @@ class _CadastroConsumidorPageState extends State<CadastroConsumidorPage> {
                             ),
                             validator: (v) => v == null || v.isEmpty ? 'Selecione seu gênero' : null,
                           ),
-                          const SizedBox(height: 24),
-                          ElevatedButton(
-                            onPressed: _avancar,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: laranja,
-                              foregroundColor: Colors.white,
-                              minimumSize: const Size(double.infinity, 48),
+                          const SizedBox(height: 16),
+                          DropdownButtonFormField<String>(
+                            value: _sexualidade,
+                            items: const [
+                              DropdownMenuItem(value: 'HETEROSEXUAL', child: Text('Heterossexual')),
+                              DropdownMenuItem(value: 'HOMOSEXUAL', child: Text('Homossexual')),
+                              DropdownMenuItem(value: 'BISEXUAL', child: Text('Bissexual')),
+                              DropdownMenuItem(value: 'DEFAULT', child: Text('Prefiro não informar')),
+                              DropdownMenuItem(value: 'OTHERS', child: Text('Outro')),
+                            ],
+                            onChanged: (v) => setState(() => _sexualidade = v),
+                            decoration: const InputDecoration(
+                              labelText: 'Orientação sexual',
+                              prefixIcon: Icon(Icons.favorite),
                             ),
-                            child: const Text('Próxima etapa'),
+                            validator: (v) => v == null || v.isEmpty ? 'Selecione sua orientação sexual' : null,
                           ),
-                        ],
-                      );
-                    } else {
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
                           const SizedBox(height: 16),
-                          const Text('Preferências de Serviços', style: TextStyle(fontWeight: FontWeight.bold)),
-                          ..._categoriasServicos.map((cat) => CheckboxListTile(
-                            value: _preferenciasServicos.contains(cat),
-                            onChanged: (v) => setState(() => v == true ? _preferenciasServicos.add(cat) : _preferenciasServicos.remove(cat)),
-                            title: Text(cat),
-                          )),
-                          const SizedBox(height: 16),
-                          const Text('Preferências de Produtos', style: TextStyle(fontWeight: FontWeight.bold)),
-                          ..._categoriasProdutos.map((cat) => CheckboxListTile(
-                            value: _preferenciasProdutos.contains(cat),
-                            onChanged: (v) => setState(() => v == true ? _preferenciasProdutos.add(cat) : _preferenciasProdutos.remove(cat)),
-                            title: Text(cat),
-                          )),
+                          CheckboxListTile(
+                            value: _aceitaTermos,
+                            onChanged: (v) => setState(() => _aceitaTermos = v ?? false),
+                            title: const Text('Li e aceito a Política de Privacidade e os Termos de Uso'),
+                            controlAffinity: ListTileControlAffinity.leading,
+                          ),
+                          CheckboxListTile(
+                            value: _aceitaNotificacoes,
+                            onChanged: (v) => setState(() => _aceitaNotificacoes = v ?? false),
+                            title: const Text('Quero receber notificações sobre promoções e novidades'),
+                            controlAffinity: ListTileControlAffinity.leading,
+                          ),
                           const SizedBox(height: 24),
                           Row(
                             children: [
