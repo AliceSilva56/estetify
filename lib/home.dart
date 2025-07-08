@@ -1,6 +1,8 @@
 import 'package:estetify/descricao.dart';
 import 'package:flutter/material.dart';
 import 'package:estetify/carrinho_agenda.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class TelaHome extends StatefulWidget {
   const TelaHome({super.key});
@@ -12,10 +14,12 @@ class TelaHome extends StatefulWidget {
 class _TelaHomeState extends State<TelaHome> {
   int _selectedIndex = 0;
   final TextEditingController _searchController = TextEditingController();
+  List<Map<String, dynamic>> _produtos = [];
+  List<Map<String, dynamic>> _servicos = [];
+  bool _carregando = true;
 
   void _onItemTapped(int index) {
     if (index == 1) {
-
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const CarrinhoAgendaScreen()),
@@ -168,11 +172,22 @@ class _TelaHomeState extends State<TelaHome> {
             ),
             ClipRRect(
               borderRadius: const BorderRadius.vertical(top: Radius.zero, bottom: Radius.circular(0)),
-              child: Image.network(
-                imageUrl,
-                height: 180,
+              child: Container(
                 width: double.infinity,
-                fit: BoxFit.cover,
+                height: 180,
+                color: Colors.grey[100],
+                child: FittedBox(
+                  fit: BoxFit.contain,
+                  child: Image.network(
+                    imageUrl,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      width: 180,
+                      height: 180,
+                      color: Colors.grey[200],
+                      child: const Icon(Icons.image, size: 60, color: Colors.grey),
+                    ),
+                  ),
+                ),
               ),
             ),
             Padding(
@@ -201,6 +216,33 @@ class _TelaHomeState extends State<TelaHome> {
         ),
       ),
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _carregarDados();
+  }
+
+  Future<void> _carregarDados() async {
+    setState(() => _carregando = true);
+    try {
+      final produtosResp = await http.get(Uri.parse('https://api-rest-estetify.onrender.com/api/itens'));
+      final servicosResp = await http.get(Uri.parse('https://api-rest-estetify.onrender.com/api/service'));
+      if (produtosResp.statusCode == 200 && servicosResp.statusCode == 200) {
+        final List<dynamic> produtosJson = json.decode(produtosResp.body);
+        final List<dynamic> servicosJson = json.decode(servicosResp.body);
+        setState(() {
+          _produtos = produtosJson.cast<Map<String, dynamic>>();
+          _servicos = servicosJson.cast<Map<String, dynamic>>();
+          _carregando = false;
+        });
+      } else {
+        setState(() => _carregando = false);
+      }
+    } catch (e) {
+      setState(() => _carregando = false);
+    }
   }
 
   @override
@@ -245,98 +287,45 @@ class _TelaHomeState extends State<TelaHome> {
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          _buildPostCard(
-            profileUrl: 'https://randomuser.me/api/portraits/women/44.jpg',
-            name: 'Estética Bella',
-            distance: '1,2 km de você',
-            imageUrl: 'https://images.unsplash.com/photo-1517841905240-472988babdf9',
-            title: 'Corte e Escova',
-            description: 'Transforme seu visual com nosso corte e escova profissional!',
-            isProduto: false,
-            preco: 'R\$ 80,00',
-            empresa: 'Estética Bella',
-            categorias: ['Cabelo', 'Escova'],
-            relacionados: [
-              {
-                'imagem': 'https://images.unsplash.com/photo-1519125323398-675f0ddb6308',
-                'nome': 'Pomada Modeladora',
-              },
-            ],
-            feedbacks: [
-              {
-                'foto': 'https://randomuser.me/api/portraits/women/44.jpg',
-                'usuario': 'Ana',
-                'comentario': 'Ótimo atendimento!',
-                'nota': 5,
-              },
-            ],
-            variaveis: [
-              {'nome': 'Simples', 'preco': 80.0},
-              {'nome': 'Com hidratação', 'preco': 120.0},
-            ],
-          ),
-          _buildPostCard(
-            profileUrl: 'https://randomuser.me/api/portraits/men/32.jpg',
-            name: 'Salão do João',
-            distance: '2,5 km de você',
-            imageUrl: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb',
-            title: 'Barba e Cabelo',
-            description: 'Pacote especial para barba e cabelo. Agende já!',
-            isProduto: false,
-            preco: 'R\$ 60,00',
-            empresa: 'Salão do João',
-            categorias: ['Barba', 'Cabelo'],
-            relacionados: [],
-            feedbacks: [],
-            variaveis: [
-              {'nome': 'Barba', 'preco': 40.0},
-              {'nome': 'Cabelo', 'preco': 60.0},
-              {'nome': 'Barba + Cabelo', 'preco': 90.0},
-            ],
-          ),
-          _buildPostCard(
-            profileUrl: 'https://randomuser.me/api/portraits/women/65.jpg',
-            name: 'Spa das Mãos',
-            distance: '900 m de você',
-            imageUrl: 'https://images.unsplash.com/photo-1512436991641-6745cdb1723f',
-            title: 'Esmalte esmeralda',
-            description: 'Esmalte preferido da Virgínia.',
-            isProduto: true,
-            preco: 'R\$ 40,00',
-            precoEntrega: 'R\$ 10,00',
-            empresa: 'Spa das Mãos',
-            categorias: ['Unhas'],
-            relacionados: [],
-            feedbacks: [],
-            variaveis: [
-              {'nome': '5ml', 'preco': 40.0},
-              {'nome': '10ml', 'preco': 70.0},
-            ],
-          ),
-          _buildPostCard(
-            profileUrl: 'https://randomuser.me/api/portraits/men/45.jpg',
-            name: 'Barbearia Top',
-            distance: '3,1 km de você',
-            imageUrl: 'https://images.unsplash.com/photo-1519125323398-675f0ddb6308',
-            title: 'Pomada Modeladora',
-            description: 'Produto de alta fixação para modelar seu cabelo.',
-            isProduto: true,
-            preco: 'R\$ 25,00',
-            precoEntrega: 'R\$ 7,00',
-            empresa: 'Barbearia Top',
-            categorias: ['Cabelo', 'Pomada'],
-            relacionados: [],
-            feedbacks: [],
-            variaveis: [
-              {'nome': 'Normal', 'preco': 25.0},
-              {'nome': 'Extra Forte', 'preco': 35.0},
-            ],
-          ),
-        ],
-      ),
+      body: _carregando
+          ? const Center(child: CircularProgressIndicator())
+          : ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                ..._servicos.map((servico) => _buildPostCard(
+                      profileUrl: 'https://randomuser.me/api/portraits/men/32.jpg',
+                      name: utf8.decode((servico['name'] ?? '').toString().runes.toList()),
+                      distance: '',
+                      imageUrl: servico['image'] ?? '',
+                      title: utf8.decode((servico['name'] ?? '').toString().runes.toList()),
+                      description: 'Serviço disponível',
+                      isProduto: false,
+                      preco: 'R\$ ${servico['price']?.toStringAsFixed(2) ?? ''}',
+                      empresa: '',
+                      categorias: [],
+                      relacionados: [],
+                      feedbacks: [],
+                      variaveis: [],
+                    )),
+                ..._produtos.map((produto) => _buildPostCard(
+                      profileUrl: 'https://randomuser.me/api/portraits/women/44.jpg',
+                      name: utf8.decode((produto['name'] ?? '').toString().runes.toList()),
+                      distance: '',
+                      imageUrl: produto['image']?.toString().startsWith('http') == true
+                          ? produto['image']
+                          : 'https://via.placeholder.com/300x180.png?text=Produto',
+                      title: utf8.decode((produto['name'] ?? '').toString().runes.toList()),
+                      description: 'Produto disponível',
+                      isProduto: true,
+                      preco: 'R\$ ${produto['price']?.toStringAsFixed(2) ?? ''}',
+                      empresa: produto['mark'] ?? '',
+                      categorias: [],
+                      relacionados: [],
+                      feedbacks: [],
+                      variaveis: [],
+                    )),
+              ],
+            ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         selectedItemColor: laranja,
