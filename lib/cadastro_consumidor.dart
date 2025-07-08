@@ -14,8 +14,7 @@ class CadastroConsumidorPage extends StatefulWidget {
 class _CadastroConsumidorPageState extends State<CadastroConsumidorPage> {
   int _etapa = 0;
   final _formKey = GlobalKey<FormState>();
-  final _primeiroNomeController = TextEditingController();
-  final _segundoNomeController = TextEditingController();
+  final _nomeCompletoController = TextEditingController();
   final _emailController = TextEditingController();
   final _senhaController = TextEditingController();
   final _confirmaSenhaController = TextEditingController();
@@ -27,51 +26,74 @@ class _CadastroConsumidorPageState extends State<CadastroConsumidorPage> {
   bool _confirmaSenhaVisivel = false;
   String? _erro;
   String? _genero;
-  String? _sexualidade;
   
   String? _fotoPerfilUrl;
   bool _aceitaNotificacoes = false;
-  void _cadastrar() {
+
+  Future<void> _cadastrar() async {
     setState(() {
       _erro = null;
     });
-    if (_formKey.currentState!.validate()) {
-      if (!_aceitaTermos) {
-        setState(() {
-          _erro = 'Você deve aceitar os Termos de Uso e a Política de Privacidade.';
-        });
-        return;
+
+    final nomeCompleto = _nomeCompletoController.text.trim();
+    final email = _emailController.text.trim();
+    final password = _senhaController.text;
+    final cleanedVat = _cpfController.text.replaceAll(RegExp(r'[^0-9]'), '');
+    // Converter data de nascimento para o formato YYYY-MM-DD
+    String birthDate = _dataNascimentoController.text;
+    if (birthDate.contains('/')) {
+      final partes = birthDate.split('/');
+      if (partes.length == 3) {
+        // dd/MM/yyyy para yyyy-MM-dd
+        birthDate = '${partes[2]}-${partes[1].padLeft(2, '0')}-${partes[0].padLeft(2, '0')}';
       }
-      final firstName = _primeiroNomeController.text.trim();
-      final lastName = _segundoNomeController.text.trim();
-      final email = _emailController.text.trim();
-      final password = _senhaController.text;
-      final cleanedVat = _cpfController.text.replaceAll(RegExp(r'[^0-9]'), '');
-      final birthDate = _dataNascimentoController.text;
-      final phone = _telefoneController.text.trim();
-      final genero = _genero;
-      final sexualidade = _sexualidade;
-      final fotoPerfil = _fotoPerfilUrl;
-      final payload = {
-        "username": firstName,
-        "vat": cleanedVat,
-        "email": email,
-        "password": password,
-        "first_name": firstName,
-        "last_name": lastName,
-        "phone": phone,
-        "birth_date": birthDate,
-        "gender": genero,
-        "sexuality": sexualidade,
-        "profile_picture": fotoPerfil,
-        "user_type": "customer",
-        // Preferências podem ser adicionadas aqui se necessário
-      };
-      // TODO: Implementar cadastro real
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Cadastro realizado com sucesso!')),
-      );
-      Navigator.pop(context);
+    }
+    final phone = _telefoneController.text.trim();
+    final genero = _genero;
+    final fotoPerfil = _fotoPerfilUrl;
+
+    final payload = {
+      "name": nomeCompleto,
+      "email": email,
+      "password": password,
+      "birthDate": birthDate,
+      "gender": genero,
+      "profilePhoto": "base64encodedimage",
+      "vat": cleanedVat,
+      "phone": phone,
+      "whatsapp": phone
+    };
+
+    debugPrint(json.encode(payload));
+
+    try {
+      final response = await http.post(
+        Uri.parse('https://api-rest-estetify.onrender.com/api/users/customers'),
+        headers: {"Content-Type": "application/json"},
+        body: json.encode(payload),
+      ).timeout(const Duration(seconds: 20));
+      
+      debugPrint('Status Code: ${response.statusCode}');
+      debugPrint('Response Body: ${response.body}');
+
+      if (response.statusCode == 201) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Cadastro realizado com sucesso!')),
+        );
+        Navigator.pop(context);
+      } else {
+        setState(() {
+          _erro = 'Erro ao cadastrar: ${response.statusCode} - ${response.body}';
+          debugPrint('Erro ao cadastrar: ${response.statusCode} - ${response.body}');
+          debugPrint('Payload: $payload');
+          debugPrint(payload.toString());
+          debugPrint(json.encode(payload));
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _erro = 'Erro de conexão: $e';
+      });
     }
   }
 
@@ -170,21 +192,12 @@ class _CadastroConsumidorPageState extends State<CadastroConsumidorPage> {
                         children: [
                           const SizedBox(height: 16),
                           TextFormField(
-                            controller: _primeiroNomeController,
+                            controller: _nomeCompletoController,
                             decoration: const InputDecoration(
-                              labelText: 'Primeiro nome',
+                              labelText: 'Nome completo',
                               prefixIcon: Icon(Icons.person),
                             ),
                             validator: (v) => v == null || v.isEmpty ? 'Informe seu primeiro nome' : null,
-                          ),
-                          const SizedBox(height: 16),
-                          TextFormField(
-                            controller: _segundoNomeController,
-                            decoration: const InputDecoration(
-                              labelText: 'Segundo nome',
-                              prefixIcon: Icon(Icons.person_outline),
-                            ),
-                            validator: (v) => v == null || v.isEmpty ? 'Informe seu segundo nome' : null,
                           ),
                           const SizedBox(height: 16),
                           TextFormField(
@@ -196,7 +209,8 @@ class _CadastroConsumidorPageState extends State<CadastroConsumidorPage> {
                             ),
                             validator: (v) {
                               if (v == null || v.isEmpty) return 'Informe seu CPF';
-                              if (!RegExp(r'\d{3}\.\d{3}\.\d{3}-\d{2}').hasMatch(v)) return 'CPF inválido (formato: 000.000.000-00)';
+                                final digits = v.replaceAll(RegExp(r'\D'), '');
+                                if (digits.length != 11) return 'CPF deve conter 11 números';
                               return null;
                             },
                           ),
@@ -337,10 +351,13 @@ class _CadastroConsumidorPageState extends State<CadastroConsumidorPage> {
                           DropdownButtonFormField<String>(
                             value: _genero,
                             items: const [
-                              DropdownMenuItem(value: 'CISGENDER', child: Text('Cisgênero')),
-                              DropdownMenuItem(value: 'TRANSGENDER', child: Text('Transgênero')),
-                              DropdownMenuItem(value: 'DEFAULT', child: Text('Prefiro não informar')),
-                              DropdownMenuItem(value: 'OTHERS', child: Text('Outro')),
+                              DropdownMenuItem(value: 'MALE_CISGENDER', child: Text('Homem Cisgênero')),
+                              DropdownMenuItem(value: 'MALE_TRANSGENDER', child: Text('Homem Transgênero')),
+                              DropdownMenuItem(value: 'FEMALE_CISGENDER', child: Text('Mulher Cisgênero')),
+                              DropdownMenuItem(value: 'FEMALE_TRANSGENDER', child: Text('Mulher Transgênero')),
+                              DropdownMenuItem(value: 'NON_BINARY', child: Text('Não-binário')),
+                              DropdownMenuItem(value: 'DEFAULT', child: Text('Outro')),
+                              DropdownMenuItem(value: 'PREFER_NOT_TO_SAY', child: Text('Prefiro não informar')),
                             ],
                             onChanged: (v) => setState(() => _genero = v),
                             decoration: const InputDecoration(
@@ -348,23 +365,6 @@ class _CadastroConsumidorPageState extends State<CadastroConsumidorPage> {
                               prefixIcon: Icon(Icons.wc),
                             ),
                             validator: (v) => v == null || v.isEmpty ? 'Selecione seu gênero' : null,
-                          ),
-                          const SizedBox(height: 16),
-                          DropdownButtonFormField<String>(
-                            value: _sexualidade,
-                            items: const [
-                              DropdownMenuItem(value: 'HETEROSEXUAL', child: Text('Heterossexual')),
-                              DropdownMenuItem(value: 'HOMOSEXUAL', child: Text('Homossexual')),
-                              DropdownMenuItem(value: 'BISEXUAL', child: Text('Bissexual')),
-                              DropdownMenuItem(value: 'DEFAULT', child: Text('Prefiro não informar')),
-                              DropdownMenuItem(value: 'OTHERS', child: Text('Outro')),
-                            ],
-                            onChanged: (v) => setState(() => _sexualidade = v),
-                            decoration: const InputDecoration(
-                              labelText: 'Orientação sexual',
-                              prefixIcon: Icon(Icons.favorite),
-                            ),
-                            validator: (v) => v == null || v.isEmpty ? 'Selecione sua orientação sexual' : null,
                           ),
                           const SizedBox(height: 16),
                           CheckboxListTile(
