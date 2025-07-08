@@ -60,11 +60,6 @@ class EscolhaTipoUsuarioPage extends StatelessWidget {
                       ),
                       child: Column(
                         children: [
-                          Image.asset(
-                            'assets/consumidor.png',
-                            height: 70,
-                            fit: BoxFit.contain,
-                          ),
                           const SizedBox(height: 12),
                           const Text(
                             'Consumidor',
@@ -85,7 +80,19 @@ class EscolhaTipoUsuarioPage extends StatelessWidget {
                 Expanded(
                   child: GestureDetector(
                     onTap: () {
-                      Navigator.pushNamed(context, '/cadastro_empresario');
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Atenção'),
+                          content: const Text('Funcionalidade ainda não implementada'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              child: const Text('OK'),
+                            ),
+                          ],
+                        ),
+                      );
                     },
                     child: Container(
                       padding: const EdgeInsets.all(20),
@@ -103,11 +110,6 @@ class EscolhaTipoUsuarioPage extends StatelessWidget {
                       ),
                       child: Column(
                         children: [
-                          Image.asset(
-                            'assets/empresario.png',
-                            height: 70,
-                            fit: BoxFit.contain,
-                          ),
                           const SizedBox(height: 12),
                           const Text(
                             'Empresário',
