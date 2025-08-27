@@ -1,3 +1,4 @@
+// Arquivo: home.dart
 import 'package:estetify/descricao.dart';
 import 'package:flutter/material.dart';
 import 'package:estetify/carrinho_agenda.dart';
@@ -262,7 +263,7 @@ class _TelaHomeState extends State<TelaHome> {
             relacionados: [
               {
                 'imagem': 'https://images.unsplash.com/photo-1519125323398-675f0ddb6308',
-                'nome': 'Pomada Modeladora',
+                'nome': ' Pomada Modeladora',
               },
             ],
             feedbacks: [
@@ -355,6 +356,7 @@ class _TelaHomeState extends State<TelaHome> {
           BottomNavigationBarItem(
             icon: Icon(Icons.chat),
             label: 'Chat',
+            
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
