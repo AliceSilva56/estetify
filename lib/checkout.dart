@@ -7,6 +7,9 @@ class CheckoutPage extends StatelessWidget {
   final int quantidade;
   final String preco;
   final String precoEntrega;
+  final String? variavel;
+  final DateTime? data;
+  final String? horario;
 
   const CheckoutPage({
     super.key,
@@ -16,17 +19,20 @@ class CheckoutPage extends StatelessWidget {
     required this.quantidade,
     required this.preco,
     required this.precoEntrega,
+    this.variavel,
+    this.data,
+    this.horario,
   });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFF2c3e50),
+        backgroundColor: const Color(0xFFFF7043),
         title: const Text('Checkout', style: TextStyle(color: Colors.white)),
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -49,6 +55,9 @@ class CheckoutPage extends StatelessWidget {
                       Text(nome, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                       Text('Empresa: $empresa', style: const TextStyle(fontSize: 14)),
                       Text('Quantidade: $quantidade', style: const TextStyle(fontSize: 14)),
+                      if (variavel != null) Text('Opção: $variavel', style: const TextStyle(fontSize: 14)),
+                      if (data != null) Text('Data: ${data!.day.toString().padLeft(2, '0')}/${data!.month.toString().padLeft(2, '0')}/${data!.year}', style: const TextStyle(fontSize: 14)),
+                      if (horario != null) Text('Horário: $horario', style: const TextStyle(fontSize: 14)),
                     ],
                   ),
                 ),
@@ -106,7 +115,7 @@ class CheckoutPage extends StatelessWidget {
               width: double.infinity,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF2c3e50),
+                  backgroundColor: const Color(0xFFFF7043),
                   foregroundColor: Colors.white,
                   minimumSize: const Size(0, 48),
                 ),

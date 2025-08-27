@@ -106,7 +106,14 @@ class _TelaHomeState extends State<TelaHome> {
     List<String> categorias = const [],
     List<Map<String, dynamic>> relacionados = const [],
     List<Map<String, dynamic>> feedbacks = const [],
+    List<Map<String, dynamic>> variaveis = const [],
   }) {
+    // Se houver variáveis, pega o menor preço
+    String precoExibido = preco;
+    if (variaveis.isNotEmpty) {
+      final menor = variaveis.map((v) => v['preco'] as num).reduce((a, b) => a < b ? a : b);
+      precoExibido = 'R\$ ${menor.toStringAsFixed(2)}';
+    }
     return GestureDetector(
       onTap: () {
         _abrirDescricao(
@@ -115,12 +122,13 @@ class _TelaHomeState extends State<TelaHome> {
             'categorias': categorias,
             'imagem': imageUrl,
             'nome': title,
-            'preco': preco,
+            'preco': precoExibido,
             'precoEntrega': precoEntrega,
             'empresa': empresa.isNotEmpty ? empresa : name,
             'descricao': description,
             'relacionados': relacionados,
             'feedbacks': feedbacks,
+            'variaveis': variaveis,
           },
         );
       },
@@ -181,6 +189,11 @@ class _TelaHomeState extends State<TelaHome> {
                     description,
                     style: const TextStyle(fontSize: 14),
                   ),
+                  if (variaveis.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Text('A partir de', style: TextStyle(fontSize: 12, color: Colors.grey[700])),
+                    Text(precoExibido, style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFFF7043))),
+                  ]
                 ],
               ),
             ),
@@ -199,24 +212,25 @@ class _TelaHomeState extends State<TelaHome> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: azul,
+        backgroundColor: laranja,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.map),
           tooltip: 'Ver no mapa',
+          color: Colors.white,
           onPressed: () {},
         ),
         title: Container(
           height: 40,
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(16),
           ),
           child: TextField(
             controller: _searchController,
             decoration: const InputDecoration(
               hintText: 'encontre seu desejo',
-              prefixIcon: Icon(Icons.search, color: Colors.grey),
+              prefixIcon: Icon(Icons.search, color: azul),
               border: InputBorder.none,
               contentPadding: EdgeInsets.symmetric(vertical: 10),
             ),
@@ -226,6 +240,7 @@ class _TelaHomeState extends State<TelaHome> {
           IconButton(
             icon: const Icon(Icons.filter_alt_rounded),
             tooltip: 'Filtrar',
+            color: Colors.white,
             onPressed: _showFilterModal,
           ),
         ],
@@ -258,6 +273,10 @@ class _TelaHomeState extends State<TelaHome> {
                 'nota': 5,
               },
             ],
+            variaveis: [
+              {'nome': 'Simples', 'preco': 80.0},
+              {'nome': 'Com hidratação', 'preco': 120.0},
+            ],
           ),
           _buildPostCard(
             profileUrl: 'https://randomuser.me/api/portraits/men/32.jpg',
@@ -272,21 +291,30 @@ class _TelaHomeState extends State<TelaHome> {
             categorias: ['Barba', 'Cabelo'],
             relacionados: [],
             feedbacks: [],
+            variaveis: [
+              {'nome': 'Barba', 'preco': 40.0},
+              {'nome': 'Cabelo', 'preco': 60.0},
+              {'nome': 'Barba + Cabelo', 'preco': 90.0},
+            ],
           ),
           _buildPostCard(
             profileUrl: 'https://randomuser.me/api/portraits/women/65.jpg',
             name: 'Spa das Mãos',
             distance: '900 m de você',
             imageUrl: 'https://images.unsplash.com/photo-1512436991641-6745cdb1723f',
-            title: 'Manicure Gel',
-            description: 'Unhas perfeitas com nossa técnica de gel exclusiva.',
+            title: 'Esmalte esmeralda',
+            description: 'Esmalte preferido da Virgínia.',
             isProduto: true,
             preco: 'R\$ 40,00',
             precoEntrega: 'R\$ 10,00',
             empresa: 'Spa das Mãos',
-            categorias: ['Unhas', 'Gel'],
+            categorias: ['Unhas'],
             relacionados: [],
             feedbacks: [],
+            variaveis: [
+              {'nome': '5ml', 'preco': 40.0},
+              {'nome': '10ml', 'preco': 70.0},
+            ],
           ),
           _buildPostCard(
             profileUrl: 'https://randomuser.me/api/portraits/men/45.jpg',
@@ -302,6 +330,10 @@ class _TelaHomeState extends State<TelaHome> {
             categorias: ['Cabelo', 'Pomada'],
             relacionados: [],
             feedbacks: [],
+            variaveis: [
+              {'nome': 'Normal', 'preco': 25.0},
+              {'nome': 'Extra Forte', 'preco': 35.0},
+            ],
           ),
         ],
       ),

@@ -28,9 +28,10 @@ class _CadastroEmpresarioPageState extends State<CadastroEmpresarioPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFF2c3e50),
+        backgroundColor: const Color(0xFFFF7043),
+        iconTheme: const IconThemeData(color: Colors.white),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: _voltar,
         ),
         title: const Text('Cadastro Empresário', style: TextStyle(color: Colors.white)),

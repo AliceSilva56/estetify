@@ -12,11 +12,12 @@ class EscolhaTipoUsuarioPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: azul,
+        backgroundColor: laranja,
+        iconTheme: const IconThemeData(color: Colors.white),
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pushNamed(context, '/login')
         ),
         title: const Text(
           'Estetify',
