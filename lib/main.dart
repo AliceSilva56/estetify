@@ -7,6 +7,7 @@ import 'escolha_cadastro.dart';
 import 'cadastro_consumidor.dart';
 import 'cadastro_empresario.dart';
 import 'carrinho_agenda.dart';
+import 'estabelecimento_cliente.dart';
 
 void main() {
   runApp(const EstetifyApp());

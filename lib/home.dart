@@ -81,8 +81,13 @@ class _TelaHomeState extends State<TelaHome> {
           ),
         );
       },
-    );
+    
+   );
+
+
+
   }
+// Essa função faz a passagem de dados para Tela de Descricao.
 
   void _abrirDescricao({required bool isProduto, required Map<String, dynamic> dados}) {
     Navigator.push(
@@ -92,6 +97,7 @@ class _TelaHomeState extends State<TelaHome> {
       ),
     );
   }
+  
 
   Widget _buildPostCard({
     required String profileUrl,
@@ -203,6 +209,7 @@ class _TelaHomeState extends State<TelaHome> {
       ),
     );
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -318,6 +325,9 @@ class _TelaHomeState extends State<TelaHome> {
             ],
           ),
           _buildPostCard(
+
+            
+
             profileUrl: 'https://randomuser.me/api/portraits/men/45.jpg',
             name: 'Barbearia Top',
             distance: '3,1 km de você',
@@ -336,7 +346,8 @@ class _TelaHomeState extends State<TelaHome> {
               {'nome': 'Extra Forte', 'preco': 35.0},
             ],
           ),
-        ],
+          
+        ];
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
