@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'home.dart';
 
+
 class CarrinhoAgendaScreen extends StatefulWidget {
   const CarrinhoAgendaScreen({super.key});
 
@@ -324,7 +325,6 @@ class _CarrinhoAgendaScreenState extends State<CarrinhoAgendaScreen> {
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: 'Agenda'),
-          BottomNavigationBarItem(icon: Icon(Icons.chat), label: 'Chat'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Perfil'),
         ],
         type: BottomNavigationBarType.fixed,

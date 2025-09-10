@@ -21,7 +21,7 @@ class _TelaHomeState extends State<TelaHome> {
       context,
       MaterialPageRoute(builder: (context) => const CarrinhoAgendaScreen()),
     );
-  } else if (index == 3) {
+  } else if (index == 2) {
     // Navegar para a tela de perfil
     Navigator.pushReplacement(
       context,
@@ -358,11 +358,6 @@ class _TelaHomeState extends State<TelaHome> {
           BottomNavigationBarItem(
             icon: Icon(Icons.calendar_today),
             label: 'Agenda',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.chat),
-            label: 'Chat',
-            
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),

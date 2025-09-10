@@ -1,5 +1,5 @@
+import 'package:estetify/telanotificacao.dart';
 import 'package:flutter/material.dart';
-
 
 class PerfilPage extends StatelessWidget {
   const PerfilPage({super.key});
@@ -69,9 +69,16 @@ class PerfilPage extends StatelessWidget {
           const SizedBox(height: 10),
 
           // Botões de configuração
-          const PerfilOption(
+          PerfilOption(
             icon: Icons.notifications,
             label: 'Notificações',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const NotificationPage()),
+              );
+            },
           ),
           const PerfilOption(
             icon: Icons.favorite,
@@ -98,11 +105,13 @@ class PerfilPage extends StatelessWidget {
 class PerfilOption extends StatelessWidget {
   final IconData icon;
   final String label;
+  final VoidCallback? onTap; 
 
   const PerfilOption({
     super.key,
     required this.icon,
     required this.label,
+    this.onTap, 
   });
 
   @override
@@ -117,12 +126,9 @@ class PerfilOption extends StatelessWidget {
         child: ListTile(
           leading: Icon(icon, color: Colors.orange),
           title: Text(label),
-          onTap: () {
-            // Ação ao clicar na opção
-          },
+          onTap: onTap, 
         ),
       ),
     );
   }
 }
-
